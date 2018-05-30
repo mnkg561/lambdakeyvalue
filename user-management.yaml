@@ -1,0 +1,57 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description:
+  Creates a Cognito User Pool for the Key Value serverless web application
+
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: KeyValuePool
+      AliasAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: KeyValueWeb
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+  CognitoConfigRole:
+    Type: AWS::IAM::Role
+    Properties:
+
+      Path: /keyvalue/
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        -
+          PolicyName: CognitoConfig
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              -
+                Sid: Logging
+                Effect: Allow
+                Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+              -
+                Sid: Cognito
+                Effect: Allow
+                Action:
+                  - "cognito-idp:CreateUserPool"
+                  - "cognito-idp:DeleteUserPool"
+                  - "cognito-idp:CreateUserPoolClient"
+                  - "cognito-idp:DeleteUserPoolClient"
+                Resource: "*"

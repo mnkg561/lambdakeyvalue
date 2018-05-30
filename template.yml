@@ -228,10 +228,16 @@ Resources:
         -
           AttributeName: "userName"
           AttributeType: "S"
+        -
+          AttributeName: "key"
+          AttributeType: "S"
       KeySchema:
         -
           AttributeName: "userName"
           KeyType: "HASH"
+        -
+          AttributeName: "key"
+          KeyType: "RANGE"
       ProvisionedThroughput:
         ReadCapacityUnits: 30
         WriteCapacityUnits: 10
