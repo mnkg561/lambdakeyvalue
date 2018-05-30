@@ -45,9 +45,9 @@ func getItems(userName string) (string, error) {
 			// Message from an error.
 			fmt.Println(err.Error())
 		}
+		fmt.Println(err.Error())
 		return "", err
 
-		fmt.Println(err.Error())
 	}
 
 	keyValue := KeyValue{}
