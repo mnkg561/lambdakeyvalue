@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>Key Value App</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Serverless web application example">
+    <meta name="author" content="">
+
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://js.arcgis.com/4.3/esri/css/main.css">
+    <link rel="stylesheet" href="css/ride.css">
+    <link rel="stylesheet" href="css/message.css">
+</head>
+
+<body>
+
+    <div class="info panel panel-default">
+        <div class="panel-heading">
+            <div class="dropdown pull-right">
+                <button id="accountLink" class="btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Account <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="accountLink">
+                    <li><a id="signOut" href="#">Sign out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="noApiMessage" class="configMessage" style="display: none;">
+        <div class="backdrop"></div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Successfully Authenticated!</h3>
+            </div>
+            <div class="panel-body">
+                <p>This page is not functional yet because there is no API invoke URL configured in <a href="/js/config.js">/js/config.js</a></p>
+                <p>In the meantime, if you'd like to test the Amazon Cognito user pool authorizer for your API, use the auth token below:</p>
+                <textarea class="authToken"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div id="noCognitoMessage" class="configMessage" style="display: none;">
+        <div class="backdrop"></div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">No Cognito User Pool Configured</h3>
+            </div>
+            <div class="panel-body">
+                <p>There is no user pool configured in <a href="/js/config.js">/js/config.js</a></p>
+            </div>
+        </div>
+    </div>
+
+	<div class="container-fluid">
+		<h1>Key Value Service!</h1>
+		<p>Click on "Generate button to create a key pair and store it in
+			the backend</p>
+		<p>Click on Refresh button to retrieve the all the keys generated
+			by user</p>
+		<div class="row">
+			<div class="col-sm-6" style="background-color: lavender;">
+				<div class="container">
+					<h2>KeyValue: input</h2>
+					<p>Please provide your own key and value :</p>
+					<form class="form-horizontal">
+						<div class="form-group">
+							<div>
+								<label for="key">Key:</label>
+							</div>
+							<div class="col-sm-4">
+								<input type="text" class="form-control" id="key">
+							</div>
+						</div>
+						<div class="form-group">
+							<div>
+								<label for="value">Value:</label>
+							</div>
+							<div class="col-sm-4">
+								<input type="text" class="form-control" id="value">
+							</div>
+						</div>
+						<div class="form-group">
+							<button type="button" id="postRequest" class="btn btn-primary btn-lg">Submit</button>
+						</div>
+					</form>
+				</div>
+
+				<div>
+					<p>Or you can generate a new Key Value using Generate Key Value
+						using Generate KeyValue button</p>
+					<button type="button" id="postRequest" class="btn btn-primary btn-lg">Generate
+						Keyvalue</button>
+					<p></p>
+					<p></p>
+				</div>
+			</div>
+
+
+
+			<div class="col-sm-6" style="background-color: lavenderblush;">
+				<div class="container">
+					<h2>Key Values from server</h2>
+					<div>
+						<p>These values are retrieved from API Gateway -> Lambda ->
+							DynamoDB</p>
+						<p></p>
+						<button type="button" id="getRequest" class="btn btn-primary btn-lg">Refresh</button>
+						<p></p>
+						<p></p>
+					</div>
+					<div>
+						<table id="keyvalue-table" class="table table-bordered">
+							<thead>
+								<tr>
+									<th>#</th>
+									<th>Key</th>
+									<th>Value</th>
+									<th>Created By</th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+    <div id="authTokenModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="authToken">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Your Auth Token</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea class="authToken"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="js/vendor/jquery-3.1.0.js"></script>
+    <script src="js/vendor/bootstrap.min.js"></script>
+    <script src="js/vendor/aws-cognito-sdk.min.js"></script>
+    <script src="js/vendor/amazon-cognito-identity.min.js"></script>
+    <script src="https://js.arcgis.com/4.3/"></script>
+    <script src="js/config.js"></script>
+    <script src="js/cognito-auth.js"></script>
+    <script src="js/keyvalue.js"></script>
+</body>
+
+</html>
