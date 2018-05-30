@@ -30,6 +30,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	fmt.Println("Received header: ", request.Headers)
 	fmt.Println("Received path:", request.Path)
 	fmt.Println("Receieved cognito user ", request.RequestContext.Authorizer)
+	fmt.Println("extra comment")
 	var userInfo UserInfo
 
 	incomingHeadersMap := request.Headers
