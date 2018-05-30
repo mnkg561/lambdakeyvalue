@@ -1,0 +1,273 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: KeyValue Service.
+Parameters:
+  stageName:
+    Type: String
+    Default: Prod
+    AllowedValues:
+      - Prod
+  basePath:
+    Type: String
+    Default: v1
+  binFileKeyName:
+    Type: String
+    Default: lambdakeyvalue.zip
+  apiUriPath:
+    Type: String
+    Default: /keys
+  domainName:
+    Type: String
+    Default: keys.eiam-test.a.intuit.com
+    AllowedValues: 
+      - keys.eiam-test.a.intuit.com
+  HostedZoneName: 
+    Type: String
+    Default: eiam-test.a.intuit.com.
+    AllowedValues: 
+      - eiam-test.a.intuit.com.
+    Description: Enter Hosted Zone name
+  RecordName:
+    Type: String
+    Default: keys.eiam-test.a.intuit.com.
+    AllowedValues: 
+      - keys.eiam-test.a.intuit.com.
+    Description: Enter Record Set name
+  CustomAuthorizerFunctionName:
+    Type: String
+    Default: CustomAuthorizationFunction
+    Description: Enter Lambda Function Name for Custom Authorizer
+  restApiName:
+    Type: String
+    Default: KeyValueApi
+  KeyValueFunctionName:
+    Type: String
+    Default: KeyValueFunction
+    Description: Enter Lambda Function Name for KeyValueFunction Handler
+  KeyValueCertArnId:
+    Type: String
+    Default: 4c1afcc7-2851-4152-9fcf-96c421ddf8e0
+    Description: Enter Cert ARN Id. e.g. afe00264-0799-4e5c-a2b6-063a7470376b in arn:aws:acm:us-east-1:${AWS::AccountId}:certificate/afe00264-0799-4e5c-a2b6-063a7470376b
+Resources: 
+  KeyValueDomainName:
+    Type: "AWS::ApiGateway::DomainName"
+    Properties:
+      RegionalCertificateArn: !Sub 'arn:aws:acm:${AWS::Region}:${AWS::AccountId}:certificate/${KeyValueCertArnId}'
+      DomainName: !Ref domainName
+      EndpointConfiguration:
+        Types: 
+          - REGIONAL
+  KeyValueApiGWApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Ref restApiName
+      StageName: !Ref stageName
+      DefinitionBody:
+          swagger: "2.0"
+          info:
+            version: "1.0"
+            title: !Ref restApiName
+          host: !Ref domainName
+          basePath: !Ref basePath
+          schemes:
+          - "https"
+          paths:
+            /keys:
+              get:
+                produces:
+                - "application/json"
+                responses:
+                  '200':
+                    description: "200 response"
+                    schema:
+                      $ref: "#/definitions/Empty"
+                    headers:
+                      Access-Control-Allow-Origin:
+                        type: "string"
+                security:
+                - CustomAuthorizer: []
+                x-amazon-apigateway-integration:
+                  uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:KeyValueFunction/invocations'
+                  responses:
+                    default:
+                      statusCode: "200"
+                      responseParameters:
+                        method.response.header.Access-Control-Allow-Origin: "'*'"
+                  passthroughBehavior: "when_no_match"
+                  httpMethod: "POST"
+                  contentHandling: "CONVERT_TO_TEXT"
+                  type: "aws_proxy"
+              post:
+                produces:
+                - "application/json"
+                responses:
+                  '200':
+                    description: "200 response"
+                    schema:
+                      $ref: "#/definitions/Empty"
+                    headers:
+                      Access-Control-Allow-Origin:
+                        type: "string"
+                security:
+                - CustomAuthorizer: []
+                x-amazon-apigateway-integration:
+                  uri: !Sub 'arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:KeyValueFunction/invocations'
+                  responses:
+                    default:
+                      statusCode: "200"
+                      responseParameters:
+                        method.response.header.Access-Control-Allow-Origin: "'*'"
+                  passthroughBehavior: "when_no_match"
+                  httpMethod: "POST"
+                  contentHandling: "CONVERT_TO_TEXT"
+                  type: "aws_proxy"
+              options:
+                consumes:
+                - "application/json"
+                produces:
+                - "application/json"
+                responses:
+                  '200':
+                    description: "200 response"
+                    schema:
+                      $ref: "#/definitions/Empty"
+                    headers:
+                      Access-Control-Allow-Origin:
+                        type: "string"
+                      Access-Control-Allow-Methods:
+                        type: "string"
+                      Access-Control-Allow-Headers:
+                        type: "string"
+                x-amazon-apigateway-integration:
+                  responses:
+                    default:
+                      statusCode: "200"
+                      responseParameters:
+                        method.response.header.Access-Control-Allow-Methods: "'POST,GET,OPTIONS'"
+                        method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+                        method.response.header.Access-Control-Allow-Origin: "'*'"
+                  requestTemplates:
+                    application/json: "{\"statusCode\": 200}"
+                  passthroughBehavior: "when_no_match"
+                  type: "mock"
+          securityDefinitions:
+            CustomAuthorizer:
+              type: "apiKey"
+              name: "Authorization"
+              in: "header"
+              x-amazon-apigateway-authtype: "cognito_user_pools"
+              x-amazon-apigateway-authorizer:
+                providerARNs:
+                - !Sub 'arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/us-west-2_ckYy8yPiw'
+                type: "cognito_user_pools"
+          definitions:
+            Empty:
+              type: "object"
+              title: "Empty Schema"  
+  KeyValueFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambdakeyvalue
+      Runtime: go1.x
+      CodeUri: 
+        Bucket: !Sub 'golang-binary-repo-${AWS::AccountId}-${AWS::Region}'
+        Key: !Ref binFileKeyName
+      FunctionName: !Ref KeyValueFunctionName
+      MemorySize: 512
+      Timeout: 30
+      Policies: 
+        - AWSLambdaBasicExecutionRole
+        - AmazonDynamoDBFullAccess
+      Events:
+        GetAPIEvent:
+          Type: Api
+          Properties:
+            Path: /keys
+            Method: get
+            RestApiId: !Ref KeyValueApiGWApi
+        PostAPIEvent:
+          Type: Api
+          Properties:
+            Path: /keys
+            Method: post
+            RestApiId: !Ref KeyValueApiGWApi
+  ScalingRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - application-autoscaling.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: "ScalingPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action:
+                  - "dynamodb:DescribeTable"
+                  - "dynamodb:UpdateTable"
+                  - "cloudwatch:PutMetricAlarm"
+                  - "cloudwatch:DescribeAlarms"
+                  - "cloudwatch:GetMetricStatistics"
+                  - "cloudwatch:SetAlarmState"
+                  - "cloudwatch:DeleteAlarms"
+                Resource: "*"
+  KeyValueTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "userName"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "userName"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 30
+        WriteCapacityUnits: 10
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+      TableName: "KEY_VALUE_TABLE"
+  ReadCapacityScalableTargetForAccountListTable:
+    Type: "AWS::ApplicationAutoScaling::ScalableTarget"
+    Properties:
+      MaxCapacity: 20
+      MinCapacity: 5
+      ResourceId: !Join
+        - /
+        - - table
+          - !Ref KeyValueTable
+      RoleARN: !GetAtt ScalingRole.Arn
+      ScalableDimension: dynamodb:table:ReadCapacityUnits
+      ServiceNamespace: dynamodb
+  ReadScalingPolicyForAccountListTable:
+    Type: "AWS::ApplicationAutoScaling::ScalingPolicy"
+    Properties:
+      PolicyName: ReadScalingPolicyForAccountListTable
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId: !Ref ReadCapacityScalableTargetForAccountListTable
+      TargetTrackingScalingPolicyConfiguration:
+        TargetValue: 50.0
+        ScaleInCooldown: 60
+        ScaleOutCooldown: 60
+        PredefinedMetricSpecification:
+          PredefinedMetricType: DynamoDBReadCapacityUtilization
+  #KeyValueAPIBasePathMapping:
+    #Type: "AWS::ApiGateway::BasePathMapping"
+    #Properties:
+     #BasePath: !Ref basePath
+     #DomainName: !Ref domainName
+     #RestApiId: !Ref KeyValueApiGWApi
+     #Stage: !Ref stageName
+
+  
