@@ -2,12 +2,14 @@ package main
 
 import ()
 
+//This will be used for KeyValue model
 type KeyValue struct {
 	UserName string `json:"userName"`
 	Key      string `json:"key"`
 	Value    string `json:"value"`
 }
 
+//This will be used for UserInfo
 type UserInfo struct {
 	Sub      string `json:"sub"`
 	Aud      string `json:"aud"`

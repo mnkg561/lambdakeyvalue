@@ -10,24 +10,26 @@ import (
 	"strings"
 )
 
-type Error struct {
+type customError struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 	Detail  string `json:"detail"`
 }
 
-type Response struct {
+type customResponse struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
 	Detail  string `json:"detail"`
 }
 
+//This Handler process APIGatewayProxyRequest event and based on HTTP Method in the input,
+//request will be processed and will respond in APIGatewYProxyResponse event
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	fmt.Println("Received body: ", request.Body)
 	fmt.Println("Received method: ", request.HTTPMethod)
 	fmt.Println("Received header: ", request.Headers)
 	fmt.Println("Received path:", request.Path)
-
+	fmt.Println("Receieved cognito user ", request.RequestContext.Authorizer)
 	var userInfo UserInfo
 
 	incomingHeadersMap := request.Headers
@@ -56,7 +58,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 
 	userName := userInfo.Email
 
-	error1 := &Error{Code: "400", Message: "BadRequest", Detail: "Invalid path"}
+	error1 := &customError{Code: "400", Message: "BadRequest", Detail: "Invalid path"}
 	response, err := json.Marshal(error1)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
@@ -83,7 +85,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 		key, value = createKeyValue(request.Body, key, value)
 		putKeys(KeyValue{UserName: userName, Key: key, Value: value})
 
-		response1 := &Response{Code: "200", Message: "Success", Detail: "Key and Value Successfully created"}
+		response1 := &customResponse{Code: "200", Message: "Success", Detail: "Key and Value Successfully created"}
 		response, err = json.Marshal(response1)
 		if err != nil {
 			return events.APIGatewayProxyResponse{}, err
@@ -91,7 +93,7 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	} else if request.HTTPMethod == "DELETE" {
 		key := "123455"
 		deleteKeys(userName, key)
-		response1 := &Response{Code: "200", Message: "Success", Detail: "Key got deleted Successfully"}
+		response1 := &customResponse{Code: "200", Message: "Success", Detail: "Key got deleted Successfully"}
 		response, err = json.Marshal(response1)
 		if err != nil {
 			return events.APIGatewayProxyResponse{}, err
