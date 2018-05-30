@@ -22,7 +22,7 @@ type customResponse struct {
 	Detail  string `json:"detail"`
 }
 
-//This Handler process APIGatewayProxyRequest event and based on HTTP Method in the input,
+//Handler process APIGatewayProxyRequest event and based on HTTP Method in the input,
 //request will be processed and will respond in APIGatewYProxyResponse event
 func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	fmt.Println("Received body: ", request.Body)
