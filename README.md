@@ -20,8 +20,11 @@ Key Value Service is an API which can generate key value and retrieves whenever 
 7. Repeat same steps from 3 to 5 and deploy it in US-EAST-2 region.
 8. Deploy Route 53 DNS Record to place US-WEST-2 and US-EAST-2 end points under custom domain name record [Replace with values as per your environment]
 
-		aws cloudformation deploy --template-file dns-record-healthcheck.yaml --stack-name KeyValueDNSRecord --parameter-overrides Region1HealthEndpoint=58rdnszpm4.execute-api.us-west-2.amazonaws.com Region2HealthEndpoint=ybwy6kpd5j.execute-api.us-east-2.amazonaws.com Region1Endpoint=d-b1b89tdu01.execute-api.us-west-2.amazonaws.com Region2Endpoint=d-aku1ozmww5.execute-api.us-east-2.amazonaws.com HostedZoneId=Z40MKVWQJ0ZJ4 MultiregionEndpoint=keys.eiam-test.a.intuit.com.
+		aws cloudformation deploy --template-file dns-record-healthcheck.yaml --stack-name KeyValueDNSRecord --parameter-overrides Region1HealthEndpoint=[HealthEndpoint] Region2HealthEndpoint=[HealthEndPoint2] Region1Endpoint=[RegionEndpoint1] Region2Endpoint=[RegionEndpoint2] HostedZoneId=[HostedZoneId] MultiregionEndpoint=[URL]
 
+9. Demo
+
+<img src='keyvalue_gif.gif' title='Demo' width='' alt='Login Video Walkthrough' />
 
 ## Special Instructions
 1. Enable GlobalTable on DynamoDB before any data gets inserted into table

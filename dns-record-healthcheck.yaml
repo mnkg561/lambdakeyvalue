@@ -27,7 +27,7 @@
             Port: "443"
             Type: "HTTPS_STR_MATCH"
             SearchString: "GREEN"
-            ResourcePath: "/Prod/v1/healthcheck"
+            ResourcePath: "/Prod/v1/healthCheck"
             FullyQualifiedDomainName: !Ref Region1HealthEndpoint
             RequestInterval: "30"
             FailureThreshold: "2"
@@ -39,7 +39,7 @@
             Port: "443"
             Type: "HTTPS_STR_MATCH"
             SearchString: "GREEN"
-            ResourcePath: "/Prod/v1/healthcheck"
+            ResourcePath: "/Prod/v1/healthCheck"
             FullyQualifiedDomainName: !Ref Region2HealthEndpoint
             RequestInterval: "30"
             FailureThreshold: "2"
