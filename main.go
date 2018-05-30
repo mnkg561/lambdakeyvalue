@@ -31,6 +31,15 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	fmt.Println("Received path:", request.Path)
 	fmt.Println("Receieved cognito user ", request.RequestContext.Authorizer)
 	fmt.Println("extra comment")
+
+	headersMap := make(map[string]string)
+	headersMap["Access-Control-Allow-Origin"] = "*"
+
+	if request.Path == "/v1/healthCheck" {
+
+		return events.APIGatewayProxyResponse{Body: "GREEN", StatusCode: 200, Headers: headersMap}, nil
+	}
+
 	var userInfo UserInfo
 
 	incomingHeadersMap := request.Headers
@@ -54,20 +63,12 @@ func Handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	fmt.Printf("user id in the request %s", userInfo.Email)
 	fmt.Println()
 
-	headersMap := make(map[string]string)
-	headersMap["Access-Control-Allow-Origin"] = "*"
-
 	userName := userInfo.Email
 
 	error1 := &customError{Code: "400", Message: "BadRequest", Detail: "Invalid path"}
 	response, err := json.Marshal(error1)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
-	}
-
-	if request.Path == "/v1/healthCheck" {
-
-		return events.APIGatewayProxyResponse{Body: "GREEN", StatusCode: 200, Headers: headersMap}, nil
 	}
 
 	if request.HTTPMethod == "GET" {
