@@ -268,12 +268,12 @@ Resources:
         ScaleOutCooldown: 60
         PredefinedMetricSpecification:
           PredefinedMetricType: DynamoDBReadCapacityUtilization
-  #KeyValueAPIBasePathMapping:
-    #Type: "AWS::ApiGateway::BasePathMapping"
-    #Properties:
-     #BasePath: !Ref basePath
-     #DomainName: !Ref domainName
-     #RestApiId: !Ref KeyValueApiGWApi
-     #Stage: !Ref stageName
+  KeyValueAPIBasePathMapping:
+    Type: "AWS::ApiGateway::BasePathMapping"
+    Properties:
+     BasePath: !Ref basePath
+     DomainName: !Ref domainName
+     RestApiId: !Ref KeyValueApiGWApi
+     Stage: !Ref stageName
 
   
